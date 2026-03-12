@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Formulario de Pedido -->
+    <div class="lg:col-span-2 bg-white rounded-xl shadow-md overflow-hidden p-8 border border-gray-100 border-l-4 border-l-blue-500">
+        <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-2">Registrar Pedido</h2>
+        <form method="POST" action="{{ url_for('index') }}">
+            {{ form.csrf_token }}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                    {{ form.nombre(class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-2 border", placeholder="Ej. Maria Juarez") }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+                    {{ form.direccion(class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-2 border", placeholder="Ej. 5 de mayo") }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                    {{ form.telefono(class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-2 border", placeholder="Ej. 477-787-23") }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+                    {{ form.fecha(type="date", class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-2 border") }}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <!-- Tamaño -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-3">Tamaño Pizza</h3>
+                    <div class="space-y-2">
+                        {% for subfield in form.tamano %}
+                            <div class="flex items-center">
+                                {{ subfield(class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500") }}
+                                <span class="ml-2 text-sm text-gray-700">{{ subfield.label }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Ingredientes -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-3">Ingredientes</h3>
+                    <div class="space-y-2">
+                        {% for subfield in form.ingredientes %}
+                            <div class="flex items-center">
+                                {{ subfield(class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500") }}
+                                <span class="ml-2 text-sm text-gray-700">{{ subfield.label }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Num Pizzas y Acciones -->
+                <div class="flex flex-col justify-center items-center bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <div class="w-full mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2 text-center">Num. de Pizzas</label>
+                        {{ form.numero_pizzas(class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-2 text-center border", value="1", min="1") }}
+                    </div>
+                    <button type="submit" name="add_pizza" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition shadow">
+                        Agregar al Pedido
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Resumen tabla -->
+            <div class="mt-8">
+                <h3 class="text-md font-bold text-gray-700 mb-4 border-b pb-2">Detalle del Pedido Actual</h3>
+                <div class="overflow-x-auto border rounded-lg shadow-inner bg-gray-50">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tamaño</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ingredientes</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Num. Pizzas</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SubTotal</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for item in cart %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <input type="radio" name="item_index" value="{{ loop.index0 }}" class="h-4 w-4 text-blue-600">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ item.tamano }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ item.ingredientes|join(', ') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ item.cantidad }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">${{ item.subtotal }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-400 italic">No hay pizzas en el pedido actual. Agregue una arriba.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        {% if cart %}
+                        <tfoot class="bg-gray-50 font-semibold">
+                            <tr>
+                                <td colspan="4" class="px-6 py-4 text-right">Total:</td>
+                                <td class="px-6 py-4 text-green-700">${{ header_total }}</td>
+                            </tr>
+                        </tfoot>
+                        {% endif %}
+                    </table>
+                </div>
+                
+                <div class="mt-6 flex justify-between space-x-4">
+                    <button type="submit" name="remove_pizza" class="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 hover:text-red-700 font-medium py-2 px-6 rounded-lg transition">
+                        Quitar Seleccionada
+                    </button>
+                    <button type="submit" name="finish_order" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition flex-grow text-center text-lg">
+                        Terminar Pedido
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Panel de Ventas Rápido (Opcional, basado en el mockup que mostraba las ventas del día al lado) -->
+    <div class="lg:col-span-1">
+        <div class="bg-gray-800 text-white rounded-xl shadow-lg p-6 sticky top-6">
+            <h2 class="text-xl font-bold mb-6 border-b border-gray-700 pb-2 text-gray-100">Ventas del Día</h2>
+            
+            {% if ventas_dia %}
+                <div class="space-y-4 mb-6">
+                    {% for venta in ventas_dia %}
+                    <div class="flex justify-between items-center border-b border-gray-700 pb-2">
+                        <span class="font-medium text-gray-300">{{ venta.cliente_nombre }}</span>
+                        <span class="text-green-400 font-semibold">total ${{ venta.total }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-8 pt-4 border-t border-gray-600">
+                    <h3 class="text-lg text-gray-400 text-center mb-1">Ventas totales del día:</h3>
+                    <p class="text-3xl font-bold text-center text-green-400">${{ total_dia }}</p>
+                </div>
+            {% else %}
+                <p class="text-gray-400 italic text-center py-8">No hay ventas registradas para hoy aún.</p>
+            {% endif %}
+            
+            <div class="mt-8">
+                <a href="{{ url_for('ventas') }}" class="block w-full bg-gray-700 hover:bg-gray-600 text-white text-center font-medium py-3 rounded-lg transition shadow">
+                    Ver todas las ventas
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

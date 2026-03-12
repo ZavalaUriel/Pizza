@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizzería - Examen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 1200px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-red-600 text-white shadow-lg mb-8">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-tight">🍕 Pizzería Examen</h1>
+            <div class="space-x-4">
+                <a href="{{ url_for('index') }}" class="hover:text-red-200 transition">Pedidos</a>
+                <a href="{{ url_for('ventas') }}" class="hover:text-red-200 transition">Ventas</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 pb-12">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-8">
+                    {% for category, message in messages %}
+                        <div class="p-4 rounded-lg shadow-md mb-4 {% if category == 'error' %}bg-red-100 text-red-800 border-l-4 border-red-500{% else %}bg-green-100 text-green-800 border-l-4 border-green-500{% endif %}">
+                            <p class="font-medium">{{ message }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
